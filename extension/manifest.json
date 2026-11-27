@@ -1,0 +1,25 @@
+{
+  "manifest_version": 3,
+  "name": "CommentLens",
+  "version": "1.0.0",
+  "description": "See the real mood behind YouTube comments with instant sentiment analysis.",
+  "permissions": ["activeTab", "storage"],
+  "host_permissions": [
+    "https://abhishek2775-commentlens-api.hf.space/*"
+  ],
+  "icons": {
+    "48": "icon.svg",
+    "96": "icon.svg"
+  },
+  "action": {
+    "default_title": "CommentLens — Analyse YouTube Comments",
+    "default_icon": "icon.svg",
+    "default_popup": "popup.html"
+  },
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "commentlens@jubito27.dev",
+      "strict_min_version": "109.0"
+    }
+  }
+}

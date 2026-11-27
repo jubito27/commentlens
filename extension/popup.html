@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CommentLens</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="container">
+    <header class="header">
+      <div class="brand">
+        <img src="icon.svg" alt="CommentLens" class="logo" />
+        <div>
+          <h1>CommentLens</h1>
+          <p class="subtitle">YouTube Comment Sentiment</p>
+        </div>
+      </div>
+      <span id="video-badge" class="badge badge-muted">Checking tab…</span>
+    </header>
+
+    <section class="controls">
+      <div class="select-group">
+        <label for="max-comments">Comments</label>
+        <select id="max-comments">
+          <option value="50">Top 50</option>
+          <option value="100" selected>Top 100</option>
+          <option value="150">Top 150</option>
+          <option value="200">Top 200</option>
+        </select>
+      </div>
+      <button id="analyze-btn" class="btn-primary" disabled>Analyse</button>
+      <button id="refresh-btn" class="btn-icon" title="Force fresh analysis (bypass cache)" hidden>↻</button>
+    </section>
+
+    <div id="status-box" class="status-box hidden">
+      <div id="spinner" class="spinner hidden"></div>
+      <p id="status-text"></p>
+    </div>
+
+    <main id="results" class="results hidden">
+      <section class="mood-card">
+        <div>
+          <span class="label">Overall Mood</span>
+          <div id="overall-mood" class="mood-value">—</div>
+        </div>
+        <div class="meta-right">
+          <span id="total-comments" class="total-pill">0 comments</span>
+          <span id="cache-tag" class="cache-tag hidden">Cached</span>
+        </div>
+      </section>
+
+      <section class="bars-card">
+        <div class="bar-row">
+          <div class="bar-header">
+            <span class="dot dot-pos"></span>
+            <span>Positive</span>
+            <span id="pos-stat" class="stat-val">0% (0)</span>
+          </div>
+          <div class="bar-track"><div id="pos-bar" class="bar-fill fill-pos"></div></div>
+        </div>
+
+        <div class="bar-row">
+          <div class="bar-header">
+            <span class="dot dot-neu"></span>
+            <span>Neutral</span>
+            <span id="neu-stat" class="stat-val">0% (0)</span>
+          </div>
+          <div class="bar-track"><div id="neu-bar" class="bar-fill fill-neu"></div></div>
+        </div>
+
+        <div class="bar-row">
+          <div class="bar-header">
+            <span class="dot dot-neg"></span>
+            <span>Negative</span>
+            <span id="neg-stat" class="stat-val">0% (0)</span>
+          </div>
+          <div class="bar-track"><div id="neg-bar" class="bar-fill fill-neg"></div></div>
+        </div>
+      </section>
+
+      <section class="comments-section">
+        <h2 class="section-title title-pos">Top Positive Comments</h2>
+        <ul id="top-positive-list" class="comment-list"></ul>
+      </section>
+
+      <section class="comments-section">
+        <h2 class="section-title title-neg">Top Negative Comments</h2>
+        <ul id="top-negative-list" class="comment-list"></ul>
+      </section>
+    </main>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>

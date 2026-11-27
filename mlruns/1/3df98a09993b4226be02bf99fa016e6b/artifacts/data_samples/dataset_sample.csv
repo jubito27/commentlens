@@ -1,0 +1,25 @@
+comments,category
+bright sample 0,positive
+bright sample 1,positive
+bright sample 2,positive
+bright sample 3,positive
+bright sample 4,positive
+bright sample 5,positive
+bright sample 6,positive
+bright sample 7,positive
+awful sample 0,negative
+awful sample 1,negative
+awful sample 2,negative
+awful sample 3,negative
+awful sample 4,negative
+awful sample 5,negative
+awful sample 6,negative
+awful sample 7,negative
+ordinary sample 0,neutral
+ordinary sample 1,neutral
+ordinary sample 2,neutral
+ordinary sample 3,neutral
+ordinary sample 4,neutral
+ordinary sample 5,neutral
+ordinary sample 6,neutral
+ordinary sample 7,neutral

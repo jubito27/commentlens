@@ -1,0 +1,33 @@
+artifact_path: /mnt/WindowsD/Projects/commentlens/mlruns/1/models/m-674d365d62384443bd3c1c6e59534ad9/artifacts
+flavors:
+  python_function:
+    env:
+      conda: conda.yaml
+      virtualenv: python_env.yaml
+    loader_module: mlflow.sklearn
+    model_path: model.skops
+    predict_fn: predict
+    python_version: 3.14.10
+  sklearn:
+    code: null
+    pickled_model: model.skops
+    serialization_format: skops
+    sklearn_version: 1.9.1
+    skops_trusted_types: null
+is_signature_from_type_hint: false
+mlflow_version: 3.18.0
+model_id: m-674d365d62384443bd3c1c6e59534ad9
+model_size_bytes: 10006
+model_uuid: m-674d365d62384443bd3c1c6e59534ad9
+prompts: null
+run_id: ee9fb2e87b284b28b470aed92727c2ae
+saved_input_example_info:
+  artifact_path: input_example.json
+  serving_input_path: serving_input_example.json
+  type: sparse_matrix_csr
+signature:
+  inputs: '[{"type": "tensor", "tensor-spec": {"dtype": "float64", "shape": [-1, 4]}}]'
+  outputs: '[{"type": "tensor", "tensor-spec": {"dtype": "int64", "shape": [-1]}}]'
+  params: null
+type_hint_from_example: false
+utc_time_created: '2026-11-24 10:29:57.327351'
