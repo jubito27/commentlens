@@ -67,41 +67,43 @@ def fetch_youtube_comments(video_id: str, max_comments: int = 150) -> List[Dict]
     next_page_token = None
     url = "https://www.googleapis.com/youtube/v3/commentThreads"
 
-    while len(items_out) < max_comments:
-        params = {
-            "part": "snippet",
-            "videoId": video_id,
-            "maxResults": min(100, max_comments - len(items_out)),
-            "order": "relevance",
-            "textFormat": "plainText",
-            "key": api_key,
-        }
-        if next_page_token:
-            params["pageToken"] = next_page_token
+    with requests.Session() as session:
+        while len(items_out) < max_comments:
+            params = {
+                "part": "snippet",
+                "videoId": video_id,
+                "maxResults": min(100, max_comments - len(items_out)),
+                "order": "relevance",
+                "textFormat": "plainText",
+                "key": api_key,
+            }
+            if next_page_token:
+                params["pageToken"] = next_page_token
 
-        resp = requests.get(url, params=params, timeout=10)
-        if resp.status_code != 200:
-            err_msg = resp.json().get("error", {}).get("message", "YouTube API error")
-            raise ValueError(f"YouTube API error ({resp.status_code}): {err_msg}")
+            resp = session.get(url, params=params, timeout=10)
+            if resp.status_code != 200:
+                err_msg = resp.json().get("error", {}).get("message", "YouTube API error")
+                raise ValueError(f"YouTube API error ({resp.status_code}): {err_msg}")
 
-        data = resp.json()
-        for item in data.get("items", []):
-            snippet = item["snippet"]["topLevelComment"]["snippet"]
-            cleaned = clean_text(snippet.get("textDisplay", ""))
-            if cleaned:
-                items_out.append(
-                    {
-                        "text": cleaned,
-                        "published_at": snippet.get("publishedAt", ""),
-                        "likes": int(snippet.get("likeCount", 0) or 0),
-                    }
-                )
+            data = resp.json()
+            for item in data.get("items", []):
+                snippet = item["snippet"]["topLevelComment"]["snippet"]
+                cleaned = clean_text(snippet.get("textDisplay", ""))
+                if cleaned:
+                    items_out.append(
+                        {
+                            "text": cleaned,
+                            "published_at": snippet.get("publishedAt", ""),
+                            "likes": int(snippet.get("likeCount", 0) or 0),
+                        }
+                    )
 
-        next_page_token = data.get("nextPageToken")
-        if not next_page_token:
-            break
+            next_page_token = data.get("nextPageToken")
+            if not next_page_token:
+                break
 
     return items_out
+
 
 
 def extract_top_keywords(scored_items: List[Dict], limit: int = 8) -> List[Dict]:
@@ -218,7 +220,12 @@ class CommentLensAnalyzer:
     def __init__(self):
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         if self.device.type == "cpu":
-            torch.set_num_threads(os.cpu_count() or 4)
+            num_threads = int(os.getenv("TORCH_THREADS", "4"))
+            torch.set_num_threads(num_threads)
+            try:
+                torch.set_num_interop_threads(1)
+            except RuntimeError:
+                pass
 
         self.tokenizer = AutoTokenizer.from_pretrained(MODEL_NAME)
         self.model = AutoModelForSequenceClassification.from_pretrained(MODEL_NAME)
@@ -255,25 +262,28 @@ class CommentLensAnalyzer:
         if cache_key in self.cache:
             return self.cache[cache_key]
 
+        t0 = time.perf_counter()
         try:
             raw_items = fetch_youtube_comments(vid, max_comments)
         except ValueError as exc:
-            # Video not found / comments disabled -> dusre server par retry karne ka fayda nahi
             return {"error": str(exc), "retryable": False}
         except Exception as exc:
             return {"error": str(exc), "retryable": True}
+        yt_ms = round((time.perf_counter() - t0) * 1000)
 
         if not raw_items:
             return {"error": "No comments found for this video.", "retryable": False}
 
-        texts = [item["text"] for item in raw_items]
-        order = np.argsort([len(c) for c in texts])
-        scored = [None] * len(raw_items)
-        batch_size = 64 if self.device.type == "cuda" else 16
+        t1 = time.perf_counter()
+        # Identical comments ko sirf ek baar model se pass karo
+        unique_texts = list(dict.fromkeys(item["text"] for item in raw_items))
+        order = np.argsort([len(c) for c in unique_texts])
+        batch_size = 64 if self.device.type == "cuda" else 32
+        score_map = {}
 
-        for start in range(0, len(texts), batch_size):
+        for start in range(0, len(unique_texts), batch_size):
             batch_idx = order[start : start + batch_size]
-            batch_texts = [texts[i] for i in batch_idx]
+            batch_texts = [unique_texts[i] for i in batch_idx]
 
             inputs = self.tokenizer(
                 batch_texts,
@@ -291,17 +301,25 @@ class CommentLensAnalyzer:
 
             probs = torch.softmax(logits.float(), dim=-1).cpu().numpy()
 
-            for idx, p in zip(batch_idx, probs):
+            for text, p in zip(batch_texts, probs):
                 pred_id = int(np.argmax(p))
                 conf = float(p[pred_id])
                 sentiment = "Neutral" if conf < CONFIDENCE_THRESHOLD else self.model.config.id2label[pred_id]
-                scored[idx] = {
-                    "comment": raw_items[idx]["text"],
+                score_map[text] = (sentiment, round(conf, 4))
+
+        scored = []
+        for item in raw_items:
+            sentiment, conf = score_map[item["text"]]
+            scored.append(
+                {
+                    "comment": item["text"],
                     "sentiment": sentiment,
-                    "confidence": round(conf, 4),
-                    "published_at": raw_items[idx]["published_at"],
-                    "likes": raw_items[idx]["likes"],
+                    "confidence": conf,
+                    "published_at": item["published_at"],
+                    "likes": item["likes"],
                 }
+            )
+        inf_ms = round((time.perf_counter() - t1) * 1000)
 
         total = len(scored)
         counts = {"Positive": 0, "Negative": 0, "Neutral": 0}
@@ -338,6 +356,7 @@ class CommentLensAnalyzer:
             "top_negative": top_negative,
             "top_keywords": extract_top_keywords(scored, limit=8),
             "timeline": build_timeline(scored),
+            "timing_ms": {"youtube": yt_ms, "inference": inf_ms},
         }
         self.cache[cache_key] = response
         return response

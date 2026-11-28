@@ -19,6 +19,11 @@ image = (
         f'AutoTokenizer.from_pretrained(\'{MODEL_NAME}\'); '
         f'AutoModelForSequenceClassification.from_pretrained(\'{MODEL_NAME}\')"'
     )
+    .env({
+        "OMP_NUM_THREADS": "4",
+        "MKL_NUM_THREADS": "4",
+        "TORCH_THREADS": "4",
+    })
     .add_local_python_source("core")
 )
 
