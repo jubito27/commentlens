@@ -218,7 +218,7 @@ class CommentLensAnalyzer:
     def __init__(self):
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         if self.device.type == "cpu":
-            torch.set_num_threads(2)
+            torch.set_num_threads(os.cpu_count() or 4)
 
         self.tokenizer = AutoTokenizer.from_pretrained(MODEL_NAME)
         self.model = AutoModelForSequenceClassification.from_pretrained(MODEL_NAME)
@@ -230,8 +230,18 @@ class CommentLensAnalyzer:
             self.model.classifier.out_proj.bias.copy_(self.model.classifier.out_proj.bias[reorder])
 
         self.model.config.id2label = {0: "Neutral", 1: "Positive", 2: "Negative"}
-        self.model = self.model.to(self.device)
         self.model.eval()
+
+        if self.device.type == "cpu":
+            try:
+                self.model = torch.ao.quantization.quantize_dynamic(
+                    self.model, {torch.nn.Linear}, dtype=torch.qint8
+                )
+            except Exception:
+                pass
+        else:
+            self.model = self.model.to(self.device)
+
         self.cache = {}
 
     @torch.inference_mode()
@@ -259,7 +269,7 @@ class CommentLensAnalyzer:
         texts = [item["text"] for item in raw_items]
         order = np.argsort([len(c) for c in texts])
         scored = [None] * len(raw_items)
-        batch_size = 64 if self.device.type == "cuda" else 32
+        batch_size = 64 if self.device.type == "cuda" else 16
 
         for start in range(0, len(texts), batch_size):
             batch_idx = order[start : start + batch_size]
@@ -269,7 +279,7 @@ class CommentLensAnalyzer:
                 batch_texts,
                 padding=True,
                 truncation=True,
-                max_length=128,
+                max_length=96,
                 return_tensors="pt",
             ).to(self.device)
 
