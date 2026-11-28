@@ -5,7 +5,8 @@
   "description": "See the real mood behind YouTube comments with instant sentiment analysis.",
   "permissions": ["activeTab", "storage"],
   "host_permissions": [
-    "https://abhishek2775-commentlens-api.hf.space/*"
+  "https://*.modal.run/*",
+  "https://abhishek2775-commentlens-api.hf.space/*"
   ],
   "icons": {
     "48": "icon.svg",

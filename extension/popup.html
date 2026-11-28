@@ -39,15 +39,15 @@
     </div>
 
     <main id="results" class="results hidden">
-      <!-- Tabs -->
+      <!-- 3 Tabs -->
       <nav class="tabs">
-        <button class="tab-btn active" data-tab="charts">Charts & Vibe</button>
-        <button class="tab-btn" data-tab="comments">Top Comments</button>
+        <button class="tab-btn active" data-tab="charts">Overview</button>
+        <button class="tab-btn" data-tab="trends">Trends</button>
+        <button class="tab-btn" data-tab="comments">Comments</button>
       </nav>
 
-      <!-- TAB 1: CHARTS -->
+      <!-- TAB 1: OVERVIEW -->
       <div id="tab-charts" class="tab-panel active">
-        <!-- 1. Vibe Score Semi-Circle Gauge -->
         <section class="card gauge-card">
           <div class="card-top">
             <span class="card-title">Audience Vibe Meter</span>
@@ -82,7 +82,6 @@
           </div>
         </section>
 
-        <!-- 2. Interactive Donut / Pie Chart -->
         <section class="card">
           <div class="card-top">
             <span class="card-title">Sentiment Share</span>
@@ -101,7 +100,6 @@
           </div>
         </section>
 
-        <!-- 3. Vertical Gradient Bar Graph -->
         <section class="card">
           <div class="card-top">
             <span class="card-title">Sentiment Comparison</span>
@@ -147,7 +145,36 @@
         </section>
       </div>
 
-      <!-- TAB 2: TOP COMMENTS -->
+      <!-- TAB 2: TRENDS (TIMELINE + KEYWORDS) -->
+      <div id="tab-trends" class="tab-panel">
+        <section class="card">
+          <div class="card-top">
+            <span class="card-title">Sentiment Over Time</span>
+            <div class="mini-legend">
+              <span class="ml-item"><i class="ml-dot dot-pos"></i>Pos</span>
+              <span class="ml-item"><i class="ml-dot dot-neu"></i>Neu</span>
+              <span class="ml-item"><i class="ml-dot dot-neg"></i>Neg</span>
+            </div>
+          </div>
+
+          <div id="timeline-readout" class="timeline-readout">
+            Hover over any point to inspect exact sentiment split.
+          </div>
+          <svg id="timeline-svg" viewBox="0 0 360 170" class="timeline-svg" aria-label="Sentiment Over Time Line Chart"></svg>
+          <p id="timeline-empty" class="empty-msg hidden">Not enough timestamp data to draw a timeline.</p>
+        </section>
+
+        <section class="card">
+          <div class="card-top">
+            <span class="card-title">Top Trending Keywords</span>
+            <span class="card-hint">Coloured by mood</span>
+          </div>
+          <ul id="keywords-list" class="keywords-list"></ul>
+          <p id="keywords-empty" class="empty-msg hidden">No recurring keywords detected yet.</p>
+        </section>
+      </div>
+
+      <!-- TAB 3: TOP COMMENTS -->
       <div id="tab-comments" class="tab-panel">
         <section class="comments-section">
           <h2 class="section-title title-pos">Top Positive Comments</h2>
@@ -161,7 +188,7 @@
       </div>
     </main>
   </div>
-
+  <script src="secrets.js"></script>
   <script src="popup.js"></script>
 </body>
 </html>

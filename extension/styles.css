@@ -5,7 +5,7 @@
 }
 
 body {
-  width: 410px;
+  width: 420px;
   min-height: 200px;
   max-height: 600px;
   overflow-y: auto;
@@ -120,7 +120,7 @@ h1 {
   font-size: 13px;
   cursor: pointer;
   box-shadow: 0 4px 12px rgba(37, 99, 235, 0.28);
-  transition: transform 0.12s ease, opacity 0.15s ease;
+  transition: transform 0.12s ease;
 }
 
 .btn-primary:hover:not(:disabled) {
@@ -186,11 +186,11 @@ h1 {
   display: none !important;
 }
 
-/* Tabs */
+/* 3-Column Tabs */
 .tabs {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 6px;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 5px;
   background: rgba(15, 20, 32, 0.9);
   border: 1px solid rgba(148, 163, 184, 0.15);
   padding: 4px;
@@ -202,7 +202,7 @@ h1 {
   color: #94a3b8;
   border: none;
   border-radius: 7px;
-  padding: 7px 10px;
+  padding: 7px 8px;
   font-size: 12px;
   font-weight: 600;
   cursor: pointer;
@@ -384,11 +384,11 @@ h1 {
 .pie-slice {
   fill: none;
   cursor: pointer;
-  transition: stroke-width 0.18s ease, opacity 0.18s ease;
+  transition: opacity 0.18s ease;
 }
 
 .pie-slice:hover {
-  opacity: 0.88;
+  opacity: 0.86;
 }
 
 .donut-center {
@@ -431,12 +431,10 @@ h1 {
   border-radius: 8px;
   padding: 6px 9px;
   cursor: pointer;
-  transition: border-color 0.15s ease, background 0.15s ease;
 }
 
 .legend-item:hover {
   border-color: rgba(148, 163, 184, 0.35);
-  background: rgba(30, 41, 59, 0.6);
 }
 
 .legend-left {
@@ -566,6 +564,146 @@ h1 {
   font-size: 10px;
   color: #64748b;
 }
+
+/* 4. Sentiment Over Time Line Chart */
+.mini-legend {
+  display: flex;
+  gap: 8px;
+  font-size: 10px;
+  color: #cbd5e1;
+}
+
+.ml-item {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.ml-dot {
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+}
+
+.dot-pos { background: #22c55e; }
+.dot-neu { background: #f59e0b; }
+.dot-neg { background: #ef4444; }
+
+.timeline-readout {
+  background: rgba(15, 20, 32, 0.78);
+  border: 1px solid rgba(148, 163, 184, 0.14);
+  border-radius: 8px;
+  padding: 6px 9px;
+  font-size: 11px;
+  color: #cbd5e1;
+  min-height: 28px;
+  display: flex;
+  align-items: center;
+}
+
+.timeline-svg {
+  width: 100%;
+  height: 170px;
+  overflow: visible;
+}
+
+.tl-grid {
+  stroke: rgba(148, 163, 184, 0.14);
+  stroke-dasharray: 3 3;
+}
+
+.tl-axis-text {
+  fill: #64748b;
+  font-size: 9px;
+  font-family: inherit;
+}
+
+.tl-line {
+  fill: none;
+  stroke-width: 2.2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.tl-dot {
+  cursor: pointer;
+  stroke: #0f172a;
+  stroke-width: 1.5;
+  transition: r 0.15s ease;
+}
+
+.tl-dot:hover {
+  r: 5.5;
+}
+
+/* 5. Top Keywords Horizontal Bar Chart */
+.keywords-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.kw-row {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.kw-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 12px;
+}
+
+.kw-left {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.kw-word {
+  font-weight: 600;
+  color: #f1f5f9;
+}
+
+.kw-pill {
+  font-size: 9px;
+  font-weight: 700;
+  padding: 1px 6px;
+  border-radius: 999px;
+  text-transform: uppercase;
+}
+
+.kw-pill-pos { background: rgba(34, 197, 94, 0.16); color: #4ade80; }
+.kw-pill-neu { background: rgba(245, 158, 11, 0.16); color: #fbbf24; }
+.kw-pill-neg { background: rgba(239, 68, 68, 0.16); color: #f87171; }
+
+.kw-count {
+  font-size: 11px;
+  color: #94a3b8;
+  font-weight: 600;
+}
+
+.kw-track {
+  width: 100%;
+  height: 7px;
+  background: rgba(15, 20, 32, 0.8);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.kw-fill {
+  height: 100%;
+  border-radius: 999px;
+  transition: width 0.55s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.kw-fill-pos { background: linear-gradient(90deg, #16a34a, #4ade80); }
+.kw-fill-neu { background: linear-gradient(90deg, #d97706, #fde047); }
+.kw-fill-neg { background: linear-gradient(90deg, #dc2626, #fb7185); }
 
 /* Comments Tab */
 .comments-section {
