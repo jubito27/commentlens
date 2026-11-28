@@ -158,7 +158,11 @@ def analyze_video(video_id: str, max_comments: int = 150):
         key=lambda x: x["confidence"],
         reverse=True,
     )[:3]
-
+    top_negative = sorted(
+            [x for x in scored if x["sentiment"] == "Neutral"],
+            key=lambda x: x["confidence"],
+            reverse=True,
+        )[:3]
     response = {
         "video_id": video_id,
         "total_comments": total,
