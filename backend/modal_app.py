@@ -27,12 +27,44 @@ image = (
     .add_local_python_source("core")
 )
 
+video_image = (
+    modal.Image.debian_slim(python_version="3.11")
+    .pip_install(
+        "fastapi[standard]",
+        "requests",
+        "youtube-transcript-api",
+        "cachetools",
+        "python-dotenv",
+    )
+    .add_local_python_source("video_core", "video_server")
+)
+
 app = modal.App("commentlens-api")
 
 @app.function(secrets=[modal.Secret.from_name("commentlens-secrets")]) 
 def some_function():
     os.getenv("YOUTUBE_API_KEY")
 
+@app.function(secrets=[modal.Secret.from_name ("commentlens-video-secrets")])                                                                             
+def some_function():                                                                                                                                     
+    os.getenv("GEMINI_API_KEY")                                                                                                                          
+    os.getenv("OPENROUTER_API_KEY")                                                                                                                      
+    os.getenv("XAI_API_KEY")                                                                                                                             
+    os.getenv("GROQ_API_KEY")                                                                                                                            
+    os.getenv("COHERE_API_KEY")  
+
+@app.function(
+    image=video_image,
+    cpu=0.5,
+    memory=512,
+    secrets=[modal.Secret.from_name("commentlens-video-secrets")],
+    scaledown_window=120,
+    max_containers=2,
+)
+@modal.asgi_app()
+def video_api():
+    from video_server import app as fastapi_app
+    return fastapi_app
 
 @app.cls(
     image=image,
